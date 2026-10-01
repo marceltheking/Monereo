@@ -500,14 +500,6 @@
     return h('div', { class: 'adm-chart-wrap' }, chart, tip);
   }
 
-  const LANG_NAMES = (() => {
-    try { return new Intl.DisplayNames(['en'], { type: 'language' }); } catch (e) { return null; }
-  })();
-  const langName = (code) => {
-    if (code === 'unknown' || code === '(other)') return code === 'unknown' ? 'Not sent' : 'Other';
-    try { return (LANG_NAMES && LANG_NAMES.of(code)) || code; } catch (e) { return code; }
-  };
-
   function rankPanel(title, rows, { label = (r) => r.key, sub = null, empty = 'Nothing yet.', total = null, wide = false, help = null } = {}) {
     const sum = total || rows.reduce((a, r) => a + r.count, 0) || 1;
     const max = rows.length ? rows[0].count : 1;
@@ -575,7 +567,6 @@
         rankPanel('Where visitors come from', r.refs, { label: (x) => x.key === '(direct)' ? 'Direct or hidden' : x.key, help: 'Many privacy browsers hide where a visit came from; those count as direct. Links tagged ?ref=name show that name.' }),
         rankPanel('Browsers', r.browsers, { help: 'Tor Browser and Brave report themselves as Firefox and Chrome.' }),
         rankPanel('Operating systems', r.os),
-        rankPanel('Languages', r.langs, { label: (x) => langName(x.key) }),
         busiest ? h('section', { class: 'adm-panel span-all' }, h('h2', { class: 'adm-panel-title' }, 'Busiest hours (UTC)'), columnChart(busiest, 'Busiest hours')) : null),
       h('p', { class: 'adm-help adm-section' },
         'A visitor is counted once per day, so over longer periods the total is the sum of daily visitors. Bots and link previews are left out. Days run in UTC. Counting started ' + shortDate(r.since, true) + '.')));
