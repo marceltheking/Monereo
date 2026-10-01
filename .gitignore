@@ -1,0 +1,9 @@
+# Live data: admin accounts, sessions, submissions, notes, statistics and uploads. Never commit it.
+data/
+
+# Temporary files written while saving data.
+*.tmp
+
+node_modules/
+.env
+.DS_Store

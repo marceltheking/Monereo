@@ -1,0 +1,15 @@
+{
+  "name": "monereo",
+  "version": "1.0.0",
+  "description": "Directory of no-KYC crypto exchanges and privacy services, with guides and an admin panel. No dependencies.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "private": true,
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
