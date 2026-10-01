@@ -10,7 +10,7 @@ export const SOCIAL_LABELS = { x: 'Twitter/X', telegram: 'Telegram Channel', sup
 
 // Icon per link; both Telegram links use the Telegram logo, so the header labels them.
 const SOCIAL_ICONS = { support: 'telegram' };
-const SOCIAL_SHORT = { x: 'Twitter/X', telegram: 'Channel', support: 'Support' };
+const SOCIAL_SHORT = { x: 'Twitter/X', telegram: 'Channel', support: 'Support', github: 'GitHub' };
 
 export const settings = () => db().settings;
 
