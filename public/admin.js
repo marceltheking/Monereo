@@ -572,12 +572,10 @@
         columnChart(points, chartTitle),
         table),
       h('div', { class: 'adm-stats-grid adm-section' },
-        rankPanel('Pages', r.pages, { total: t.views }),
         rankPanel('Where visitors come from', r.refs, { label: (x) => x.key === '(direct)' ? 'Direct or hidden' : x.key, help: 'Many privacy browsers hide where a visit came from; those count as direct. Links tagged ?ref=name show that name.' }),
         rankPanel('Browsers', r.browsers, { help: 'Tor Browser and Brave report themselves as Firefox and Chrome.' }),
         rankPanel('Operating systems', r.os),
         rankPanel('Languages', r.langs, { label: (x) => langName(x.key) }),
-        rankPanel('Pages not found', r.missing, { empty: 'No broken links visited.' }),
         busiest ? h('section', { class: 'adm-panel span-all' }, h('h2', { class: 'adm-panel-title' }, 'Busiest hours (UTC)'), columnChart(busiest, 'Busiest hours')) : null),
       h('p', { class: 'adm-help adm-section' },
         'A visitor is counted once per day, so over longer periods the total is the sum of daily visitors. Bots and link previews are left out. Days run in UTC. Counting started ' + shortDate(r.since, true) + '.')));
