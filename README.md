@@ -1,20 +1,45 @@
-# Monereo
+<p align="center">
+  <a href="https://monereo.com"><img src=".github/assets/banner.png" alt="Monereo: the no-KYC directory for crypto exchanges and privacy services" width="100%"></a>
+</p>
+
+<p align="center">
+  <a href="https://monereo.com"><img src="https://img.shields.io/badge/website-monereo.com-ff6c00?style=flat-square&labelColor=1c1c1f" alt="Website"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-ff6c00?style=flat-square&labelColor=1c1c1f" alt="License: AGPL-3.0"></a>
+  <img src="https://img.shields.io/badge/node-%E2%89%A518-ff6c00?style=flat-square&labelColor=1c1c1f&logo=nodedotjs&logoColor=white" alt="Node.js 18 or newer">
+  <img src="https://img.shields.io/badge/dependencies-0-ff6c00?style=flat-square&labelColor=1c1c1f" alt="Zero dependencies">
+  <img src="https://img.shields.io/badge/tracking-none-ff6c00?style=flat-square&labelColor=1c1c1f" alt="No tracking">
+</p>
+
+<p align="center">
+  <a href="https://monereo.com"><b>Website</b></a> &nbsp;·&nbsp;
+  <a href="https://monereo.com/no-kyc-exchanges">Exchanges</a> &nbsp;·&nbsp;
+  <a href="https://monereo.com/guides">Guides</a> &nbsp;·&nbsp;
+  <a href="https://monereo.com/submit">Submit a service</a>
+</p>
+
+---
 
 The source code of [monereo.com](https://monereo.com), a directory of no-KYC crypto exchanges and privacy services: VPNs, email, hosting, wallets, privacy tools and more, with plain-language guides.
 
-- **No dependencies.** Plain Node.js, no npm packages, no build step, no database server.
-- **No tracking.** No cookies for visitors, no third-party scripts or fonts. Statistics are anonymous daily totals counted on the server.
-- **Works without JavaScript.** Search, the submit form and every link work with scripts disabled.
-- **Admin panel** for exchanges, directory listings, categories, submissions, site settings, statistics and admin accounts.
-- **SEO pages** for every category, listing and guide, with a sitemap and structured data.
+| | |
+| --- | --- |
+| 📦 **No dependencies** | Plain Node.js, no npm packages, no build step, no database server. |
+| 🕶️ **No tracking** | No cookies for visitors, no third-party scripts or fonts. Statistics are anonymous daily totals counted on the server. |
+| 🧩 **Works without JavaScript** | Search, filters, the submit form and every link work with scripts disabled. |
+| 🛠️ **Admin panel** | Exchanges, directory listings, categories, submissions, site settings, statistics and admin accounts. |
+| 🔎 **SEO pages** | Every category, listing and guide gets its own page, with a sitemap and structured data. |
+
+<p align="center">
+  <img src=".github/assets/screenshot.png" alt="The Monereo homepage: categories on the left, instant exchanges with KYC scores, fees and guarantees on the right" width="100%">
+</p>
 
 ## Run it
 
 You need Node.js 18 or newer.
 
 ```sh
-git clone <this repository>
-cd monereo
+git clone https://github.com/marceltheking/Monereo.git
+cd Monereo
 npm start            # or: node server.mjs
 ```
 
