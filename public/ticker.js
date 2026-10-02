@@ -76,6 +76,7 @@
   // A fresh price every minute while the tab is open and visible.
   setInterval(function () { if (!document.hidden) load(); }, 60000);
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden && Date.now() - Date.parse(updated.dataset.time || 0) > 60000) load();
+    // With no price yet there is no time, which counts as stale.
+    if (!document.hidden && !(Date.now() - Date.parse(updated.dataset.time || '') <= 60000)) load();
   });
 })();

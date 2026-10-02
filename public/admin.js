@@ -17,6 +17,8 @@
       if (k === 'class') el.className = v;
       else if (k === 'value' || k === 'checked' || k === 'selected') late[k] = v;
       else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
+      // The CSP blocks style attributes but not styles set through el.style, so set them one by one.
+      else if (k === 'style') String(v).split(';').forEach((d) => { const i = d.indexOf(':'); if (i > 0) el.style.setProperty(d.slice(0, i).trim(), d.slice(i + 1).trim()); });
       else if (typeof v === 'boolean' && k in el) el[k] = v;
       else el.setAttribute(k, v === true ? '' : String(v));
     }

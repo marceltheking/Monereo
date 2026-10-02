@@ -202,7 +202,7 @@ ${canon ? `<meta property="og:url" content="${esc(canon)}">` : ''}
 <link rel="icon" type="image/png" href="${asset('favicon.png')}">
 <link rel="apple-touch-icon" href="${asset('logo.png')}">
 ${jsonLd(ld)}
-<link rel="preload" href="${asset('inter.woff2')}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="${BASE}/inter.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${asset('style.css')}">
 ${head}
 </head>
@@ -263,6 +263,20 @@ export const recommendedRibbon = (x) => (x.recommended ? `<span class="rec-ribbo
 
 const trustWords = (x) => [x.verified ? 'verified' : 'unverified', x.recommended ? 'recommended' : ''];
 
+// Filters under the category list. Each one is a query flag (?verified=1), so they work without scripts too.
+// Tags are matched exactly as the admin sets them; exchanges have no tags, so only the trust filters apply to them.
+const hasTag = (x, ...names) => (x.tags ?? []).some((t) => names.includes(t));
+export const FILTERS = [
+  { key: 'verified', label: 'Verified only', icon: 'badgeCheck', test: (x) => Boolean(x.verified) },
+  { key: 'recommended', label: 'Recommended', icon: 'star', test: (x) => Boolean(x.recommended) },
+  { key: 'xmr', label: 'Accepts Monero', icon: 'coins', test: (x) => hasTag(x, 'Accepts XMR', 'Monero') },
+  { key: 'oss', label: 'Open source', icon: 'code', test: (x) => hasTag(x, 'Open source') },
+  { key: 'tor', label: 'Tor', icon: 'eyeOff', test: (x) => hasTag(x, 'Tor') },
+  { key: 'noaccount', label: 'No account', icon: 'userX', test: (x) => hasTag(x, 'No account') },
+  { key: 'free', label: 'Free', icon: 'gift', test: (x) => hasTag(x, 'Free', 'Free tier') },
+];
+const filterFlags = (x) => FILTERS.filter((f) => f.test(x)).map((f) => f.key);
+
 const POPULAR = ['Monero', 'No KYC', 'P2P', 'Accepts XMR', 'Open source'];
 
 // Lowercased text a listing is searched by, on the server and in the browser.
@@ -279,8 +293,9 @@ export function exchangeCard(p, match, detailPath = '') {
   const g = kycGrade(p.kyc);
   const tags = p.kinds.map((k) => `${k} rate`);
   const text = searchText(p.name, host, 'exchange instant swap', g.label, `kyc ${g.grade}`, ...tags, ...trustWords(p));
-  const hidden = !match(text);
-  const html = `<li class="xc${p.featured ? ' is-featured' : ''}${p.recommended ? ' is-recommended' : ''}" data-search="${esc(text)}"${hidden ? ' hidden' : ''}>
+  const flags = filterFlags(p);
+  const hidden = !match(text, flags);
+  const html = `<li class="xc${p.featured ? ' is-featured' : ''}${p.recommended ? ' is-recommended' : ''}" data-search="${esc(text)}" data-f="${flags.join(' ')}"${hidden ? ' hidden' : ''}>
 ${recommendedRibbon(p)}<div class="xc-top">${exLogo(p, 48)}<span class="xc-name"><strong>${esc(p.name)}</strong>${verifyBadge(p)}${p.featured ? '<span class="tag">Featured</span>' : ''}<small>${esc(host)}</small></span>${kycCell(p)}</div>
 <dl class="xc-stats">
 <div><dt>Fee</dt><dd>${feeCell(p)}</dd></div>
@@ -301,8 +316,9 @@ export function directoryCard(l, c, match, detailPath = '') {
   const logo = l.logo
     ? `<img class="dir-logo" src="${esc(imageUrl(l.logo))}" width="40" height="40" alt="" loading="lazy">`
     : `<span class="dir-logo dir-letter" aria-hidden="true">${esc(l.name.slice(0, 1).toUpperCase())}</span>`;
-  const hidden = !match(text);
-  const html = `<li data-search="${esc(text)}"${hidden ? ' hidden' : ''}><a class="dir-card${l.recommended ? ' is-recommended' : ''}" ${detailPath ? `href="${esc(detailPath)}"` : `href="${esc(l.url)}" target="_blank" rel="noopener noreferrer nofollow" data-stat="l:${esc(l.id)}"`}>
+  const flags = filterFlags(l);
+  const hidden = !match(text, flags);
+  const html = `<li data-search="${esc(text)}" data-f="${flags.join(' ')}"${hidden ? ' hidden' : ''}><a class="dir-card${l.recommended ? ' is-recommended' : ''}" ${detailPath ? `href="${esc(detailPath)}"` : `href="${esc(l.url)}" target="_blank" rel="noopener noreferrer nofollow" data-stat="l:${esc(l.id)}"`}>
 ${recommendedRibbon(l)}<span class="dir-top">${logo}<span class="dir-name"><span class="dir-title"><strong>${esc(l.name)}</strong>${verifyBadge(l)}</span><small>${esc(host)}</small></span>${icon('arrowRight', 16)}</span>
 ${l.description ? `<p>${esc(l.description)}</p>` : ''}${tagList(l.tags)}
 </a></li>`;
@@ -320,14 +336,15 @@ ${items.map((x) => x.html).join('\n')}
 </div>`;
 }
 
-function dirSection(c, groups, lead = '') {
+// While a search or filter is on, the heading counts what is shown; data-total lets the browser script switch back.
+function dirSection(c, groups, narrowed, lead = '') {
   const more = `<p class="dir-more"><a href="${categoryPath(c)}">${esc(categorySeo(c).browse)}${icon('arrowRight', 14)}</a></p>`;
   const count = groups.reduce((n, g) => n + g.shown, 0);
   const total = groups.reduce((n, g) => n + g.total, 0);
   return `<section class="dir-sec${c.id === 'exchanges' ? ' is-main' : ''}" id="${esc(catAnchor(c))}" data-cat="${esc(c.id)}"${count ? '' : ' hidden'}>
 <header class="dir-sec-head">
 <span class="dir-sec-icon">${catIcon(c, 20)}</span>
-<div><h2>${esc(c.name)}<span class="dir-sec-count">${total}</span></h2>${c.blurb ? `<p>${esc(c.blurb)}</p>` : ''}</div>
+<div><h2>${esc(c.name)}<span class="dir-sec-count" data-total="${total}">${narrowed ? count : total}</span></h2>${c.blurb ? `<p>${esc(c.blurb)}</p>` : ''}</div>
 </header>
 ${lead}${groups.map((g) => g.html).join('\n')}
 ${more}
@@ -338,9 +355,13 @@ export function directoryPage(params = {}) {
   if (settings().maintenance.enabled) return maintenancePage();
   const q = String(params.q ?? '').replace(/\s+/g, ' ').trim().slice(0, 60);
   const terms = q.toLowerCase().split(' ').filter(Boolean);
-  const match = (text) => terms.every((t) => text.includes(t));
+  const active = FILTERS.filter((f) => params[f.key]).map((f) => f.key);
+  const narrowed = terms.length || active.length;
+  const match = (text, flags) => terms.every((t) => text.includes(t)) && active.every((k) => flags.includes(k));
   const cats = directory();
   const exchanges = providers();
+  const everything = [...exchanges, ...cats.flatMap((c) => c.links)];
+  const filterCounts = FILTERS.map((f) => ({ ...f, n: everything.filter(f.test).length })).filter((f) => f.n);
 
   const build = (items, render) => items.map(render);
   const group = (title, items, list, extra) => ({
@@ -373,9 +394,16 @@ ${KYC_GRADES.map((g) => { const k = kycGrade(g); return `<li title="${esc(k.desc
 <nav class="dir-cats" aria-label="Categories">
 <h2>Categories</h2>
 <ul>
-${sections.map((sec) => `<li data-cat-link="${esc(sec.c.id)}"${shownOf(sec) ? '' : ' hidden'}><a href="#${esc(catAnchor(sec.c))}">${catIcon(sec.c, 16)}<span>${esc(sec.c.name)}</span><span class="n">${shownOf(sec)}</span></a></li>`).join('\n')}
+${sections.map((sec) => `<li data-cat-link="${esc(sec.c.id)}"${shownOf(sec) ? '' : ' class="is-empty"'}><a href="#${esc(catAnchor(sec.c))}">${catIcon(sec.c, 16)}<span>${esc(sec.c.name)}</span><span class="n">${shownOf(sec)}</span></a></li>`).join('\n')}
 </ul>
 </nav>
+${filterCounts.length ? `<div class="dir-filters" role="group" aria-labelledby="dir-f-h">
+<h2 id="dir-f-h">Filters</h2>
+<ul>
+${filterCounts.map((f) => `<li><label class="dir-f" title="${f.n} ${f.n === 1 ? 'listing' : 'listings'}"><input type="checkbox" name="${f.key}" value="1" form="dir-form"${active.includes(f.key) ? ' checked' : ''}><span>${icon(f.icon, 15)}<span>${esc(f.label)}</span><span class="n">${f.n}</span></span></label></li>`).join('\n')}
+</ul>
+<button class="btn btn-outline btn-sm dir-f-apply" type="submit" form="dir-form">Apply filters</button>
+</div>` : ''}
 <div class="dir-side-cta">
 <strong>Run a no-KYC service?</strong>
 <p>Get it in front of people who care about privacy.</p>
@@ -383,7 +411,8 @@ ${sections.map((sec) => `<li data-cat-link="${esc(sec.c.id)}"${shownOf(sec) ? ''
 </div>
 </aside>`;
 
-  const resultsLine = `<p class="dir-count" id="dir-count"${terms.length ? '' : ' hidden'} role="status"><span class="n">${found}</span> <span class="w">${found === 1 ? 'result' : 'results'}</span> for &ldquo;<span class="q">${esc(q)}</span>&rdquo; <a href="${BASE}/" class="dir-clear">Clear search</a></p>`;
+  const clearLabel = terms.length && active.length ? 'Clear all' : active.length ? 'Clear filters' : 'Clear search';
+  const resultsLine = `<p class="dir-count" id="dir-count"${narrowed ? '' : ' hidden'} role="status"><span class="n">${found}</span> <span class="w">${found === 1 ? 'result' : 'results'}</span><span class="for"${terms.length ? '' : ' hidden'}> for &ldquo;<span class="q">${esc(q)}</span>&rdquo;</span> <a href="${BASE}/" class="dir-clear">${clearLabel}</a></p>`;
 
   const body = `
 <section class="dir-hero" id="top">
@@ -391,7 +420,7 @@ ${sections.map((sec) => `<li data-cat-link="${esc(sec.c.id)}"${shownOf(sec) ? ''
 <p class="eyebrow">${icon('shieldCheck', 15)}No-KYC directory</p>
 <h1>${esc(settings().heroTitle)}</h1>
 <p class="lede">${esc(settings().heroLede)}</p>
-<form class="dir-search" method="get" action="${BASE}/" role="search">
+<form class="dir-search" id="dir-form" method="get" action="${BASE}/" role="search">
 <label class="search">${icon('search', 18)}<input type="search" name="q" id="dir-q" value="${esc(q)}" placeholder="Search ${total} exchanges and services" autocomplete="off" spellcheck="false" aria-label="Search the directory"><kbd>/</kbd></label>
 <button class="btn btn-primary" type="submit">Search</button>
 </form>
@@ -408,13 +437,13 @@ ${exchanges.length ? `<li>${icon('repeat', 16)}<strong>${exchanges.length}</stro
 ${side}
 <div class="dir-main">
 ${resultsLine}
-${main ? dirSection(main.c, main.groups) : ''}
+${main ? dirSection(main.c, main.groups, narrowed) : ''}
 ${rest.length ? `<div id="services">
-${rest.map((sec) => dirSection(sec.c, sec.groups)).join('\n')}
+${rest.map((sec) => dirSection(sec.c, sec.groups, narrowed)).join('\n')}
 </div>` : ''}
 <div class="dir-none" id="dir-none"${found ? ' hidden' : ''}>
 ${icon('search', 22)}
-<p><strong>Nothing matches your search.</strong> Try another word, or <a href="${BASE}/">browse every category</a>.</p>
+<p><strong>Nothing matches.</strong> Try another word or fewer filters, or <a href="${BASE}/">browse every category</a>.</p>
 </div>
 </div>
 </div>
@@ -449,8 +478,8 @@ ${DIR_FAQ.map(([question, a]) => `<details><summary>${question}${icon('chevron',
     description: `Directory of no-KYC crypto exchanges${names ? ` like ${names}` : ''}, plus wallets, VPNs, email, hosting and more. No accounts, no tracking.`,
     body,
     canonical: `${BASE}/`,
-    robots: terms.length ? 'noindex, follow' : null,
-    ld: terms.length ? [] : [organizationLd(), websiteLd(), faqLd(DIR_FAQ)],
+    robots: narrowed ? 'noindex, follow' : null,
+    ld: narrowed ? [] : [organizationLd(), websiteLd(), faqLd(DIR_FAQ)],
     page: 'directory',
     script: ['app.js', 'directory.js'],
   });

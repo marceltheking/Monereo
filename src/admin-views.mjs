@@ -25,7 +25,7 @@ function shell(page, body) {
 <meta name="robots" content="noindex, nofollow">
 <title>Admin | Monereo</title>
 <link rel="icon" type="image/png" href="${asset('favicon.png')}">
-<link rel="preload" href="${asset('inter.woff2')}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="${BASE}/inter.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${asset('style.css')}">
 <link rel="stylesheet" href="${asset('admin.css')}">
 </head>

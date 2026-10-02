@@ -328,6 +328,14 @@
     submitBtn.querySelector('span').firstChild.textContent = 'Sending…';
   });
 
+  // Coming back to this page from the browser's back cache must not leave the button stuck on "Sending…".
+  var submitLabel = submitBtn.querySelector('span').firstChild.textContent;
+  window.addEventListener('pageshow', function (e) {
+    if (!e.persisted) return;
+    submitBtn.disabled = false;
+    submitBtn.querySelector('span').firstChild.textContent = submitLabel;
+  });
+
   // The phone's back button walks back through the steps.
   window.addEventListener('popstate', function () {
     var i = ids.indexOf(location.hash.slice(1));

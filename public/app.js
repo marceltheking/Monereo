@@ -12,6 +12,11 @@
     document.addEventListener('click', function (e) {
       if (menu.open && !menu.contains(e.target)) menu.open = false;
     });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' || !menu.open) return;
+      menu.open = false;
+      menu.querySelector('summary').focus();
+    });
   }
 
   // Anonymous click counts on category and listing pages; the directory script does this on the homepage.

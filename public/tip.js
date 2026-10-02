@@ -9,6 +9,8 @@
   pop.hidden = true;
   document.body.appendChild(pop);
   var current = null;
+  // The tip opened by a click or tap; it stays until the next click, tap or Escape.
+  var pinned = null;
 
   function place(el) {
     var r = el.getBoundingClientRect();
@@ -34,6 +36,7 @@
 
   function hide() {
     current = null;
+    pinned = null;
     pop.hidden = true;
   }
 
@@ -45,21 +48,24 @@
   });
   document.addEventListener('mouseout', function (e) {
     var el = tipOf(e);
-    if (el && el === current && !el.contains(e.relatedTarget)) hide();
+    if (el && el === current && el !== pinned && !el.contains(e.relatedTarget)) hide();
   });
   document.addEventListener('focusin', function (e) {
     var el = tipOf(e);
     if (el) show(el);
   });
   document.addEventListener('focusout', function (e) {
-    if (tipOf(e) === current) hide();
+    if (tipOf(e) === current && current !== pinned) hide();
   });
   document.addEventListener('click', function (e) {
     var el = tipOf(e);
-    if (!el) return hide();
-    e.stopPropagation();
-    if (current === el && !pop.hidden) hide();
-    else show(el);
+    if (!el) {
+      if (current) hide();
+      return;
+    }
+    if (pinned === el) return hide();
+    show(el);
+    pinned = el;
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
   window.addEventListener('scroll', function () { if (current) place(current); }, { passive: true, capture: true });
