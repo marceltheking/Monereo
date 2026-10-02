@@ -5,7 +5,7 @@ import { categoryPath, categorySeo, seoText } from './seo-content.mjs';
 import { guideCards, guidesFor } from './guides.mjs';
 import { BASE, KYC_GRADES, kycGrade, LIQUIDITY, LIQUIDITY_MIXED_HELP, LIQUIDITY_THIRD_HELP, settings } from './data.mjs';
 import {
-  layout, esc, exLogo, hostOf, tagList, verifyBadge, exchangeCard, directoryCard, kycCell, feeCell,
+  layout, esc, exLogo, hostOf, tagList, verifyBadge, exchangeCard, directoryCard, kycCell, feeCell, hasFee, feeText,
   liquidityCell, guaranteeCell, catIcon, maintenancePage,
 } from './views.mjs';
 
@@ -137,7 +137,7 @@ function exchangeFacts(p) {
   return {
     facts: [
       fact('KYC score', `${kycCell(p)}<small>${esc(g.description)}</small>`),
-      fact('Fee', `${feeCell(p)}<small>Floating-rate fee published by the exchange.</small>`),
+      fact('Fee', `${feeCell(p)}<small>${hasFee(p) ? 'Floating-rate fee published by the exchange.' : 'The exchange does not publish a fixed fee; check the quote before you send.'}</small>`),
       fact('Typical swap time', `~${esc(p.eta)} min`),
       fact('Rate types', p.kinds.map((k) => esc(k)).join(', ') || '<span class="dim">Not stated</span>'),
       fact('Liquidity', `${liquidityCell(p)}${liq && LIQUIDITY[p.liquidity] ? `<small>${esc(liq)}</small>` : ''}`),
@@ -145,7 +145,7 @@ function exchangeFacts(p) {
     ],
     tags: p.kinds.map((k) => `${k} rate`),
     url: p.website,
-    description: `Instant crypto exchange with a KYC score of ${g.grade} (${g.label}), a ${(p.spread * 100).toFixed(2).replace(/\.?0+$/, '')}% fee and swaps in about ${p.eta} minutes.`,
+    description: `Instant crypto exchange with a KYC score of ${g.grade} (${g.label})${hasFee(p) ? `, a ${feeText(p)} fee` : ''} and swaps in about ${p.eta} minutes.`,
     stat: `x:${p.id}`,
   };
 }

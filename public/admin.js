@@ -640,7 +640,7 @@
           h('small', null, host(p.website) || p.id),
           h('div', { class: 'adm-pills adm-trust' }, trustPills(p))))),
       h('td', { class: 'adm-keep' }, switchEl(p.enabled, (e) => updateProvider(p, { enabled: e.target.checked }, e.target), 'Enabled')),
-      h('td', { class: 'num' }, pctLabel(p.spread)),
+      h('td', { class: 'num' }, p.spread === null || p.spread === undefined ? 'Unknown' : pctLabel(p.spread)),
       h('td', { class: 'num' }, '~' + p.eta + ' min'),
       h('td', null, h('div', { class: 'adm-pills' }, p.kinds.map((k) => pill(k)))),
       h('td', null, grade(p.kyc)),
@@ -709,7 +709,7 @@
           toggleRow('featured', 'Featured', 'Adds a "Featured" tag and an orange border.', src.featured),
           ...trustToggles(src)))),
       fieldset('Fees and speed', h('div', { class: 'adm-grid adm-grid-3' },
-        field('Fee', suffixed('%', input('spread', pct(src.spread), { type: 'number', step: 'any', min: 0, max: 50, required: true })), { name: 'spread', help: 'The exchange\'s published fee, shown on its card.' }),
+        field('Fee', suffixed('%', input('spread', pct(src.spread), { type: 'number', step: 'any', min: 0, max: 50, placeholder: 'Unknown' })), { name: 'spread', help: 'The exchange\'s published fee, shown on its card. Leave empty if unknown: the card then says Unknown.' }),
         field('Average time', suffixed('min', input('eta', src.eta, { type: 'number', min: 1, max: 1440, step: 1, required: true })), { name: 'eta' }),
         h('div', { class: 'adm-field span-all', 'data-field': 'kinds' }, h('span', null, 'Rate types'),
           h('div', { class: 'adm-checks' }, check('kind:Floating', 'Floating', src.kinds.includes('Floating')), check('kind:Fixed', 'Fixed', src.kinds.includes('Fixed')))))),
@@ -751,7 +751,6 @@
           rating: numOrNull(val(form, 'rating')),
           notes: form.elements.notes.value,
         };
-        if (data.spread === null) data.spread = NaN;
         if (creating) {
           const saved = await api('POST', '/providers', data);
           S.providers.push(saved);

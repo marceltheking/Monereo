@@ -37,10 +37,17 @@ export const helpTip = (text) => text
   ? `<span class="help-tip" tabindex="0" role="img" aria-label="${esc(text)}" title="${esc(text)}" data-tip="${esc(text)}">?</span>`
   : '';
 
-// The fee an exchange publishes for a floating-rate swap, as set in the admin.
-export function feeCell(p) {
+// The fee an exchange publishes for a floating-rate swap, as set in the admin. Left empty there, it is unknown.
+export const hasFee = (p) => typeof p.spread === 'number';
+
+export const feeText = (p) => {
   const pct = p.spread * 100;
-  return `<span class="fee">${pct < 10 ? pct.toFixed(2).replace(/\.?0+$/, '') : pct.toFixed(1)}%</span>`;
+  return `${pct < 10 ? pct.toFixed(2).replace(/\.?0+$/, '') : pct.toFixed(1)}%`;
+};
+
+export function feeCell(p) {
+  if (!hasFee(p)) return '<span class="dim">Unknown</span>';
+  return `<span class="fee">${feeText(p)}</span>`;
 }
 
 export function liquidityCell(p) {
@@ -417,7 +424,6 @@ ${filterCounts.map((f) => `<li><label class="dir-f" title="${f.n} ${f.n === 1 ? 
   const body = `
 <section class="dir-hero" id="top">
 <div class="container dir-hero-inner">
-<p class="eyebrow">${icon('shieldCheck', 15)}No-KYC directory</p>
 <h1>${esc(settings().heroTitle)}</h1>
 <p class="lede">${esc(settings().heroLede)}</p>
 <form class="dir-search" id="dir-form" method="get" action="${BASE}/" role="search">
@@ -425,11 +431,6 @@ ${filterCounts.map((f) => `<li><label class="dir-f" title="${f.n} ${f.n === 1 ? 
 <button class="btn btn-primary" type="submit">Search</button>
 </form>
 <p class="dir-popular"><span>Popular:</span>${POPULAR.map((t) => `<a href="${BASE}/?q=${encodeURIComponent(t.toLowerCase())}" data-q="${esc(t.toLowerCase())}">${esc(t)}</a>`).join('')}</p>
-<ul class="dir-stats">
-<li>${icon('link', 16)}<strong>${total}</strong> listings</li>
-<li>${icon('barChart', 16)}<strong>${sections.length}</strong> categories</li>
-${exchanges.length ? `<li>${icon('repeat', 16)}<strong>${exchanges.length}</strong> instant exchanges</li>` : ''}
-</ul>
 </div>
 </section>
 

@@ -261,7 +261,7 @@ function cleanProvider(input, existing) {
     featured: bool(src.featured),
     verified: bool(src.verified),
     recommended: bool(src.recommended),
-    spread: number(src.spread, 'spread', { min: 0, max: 0.5, label: 'Fee' }),
+    spread: number(src.spread, 'spread', { min: 0, max: 0.5, nullable: true, label: 'Fee' }),
     eta: number(src.eta, 'eta', { min: 1, max: 1440, integer: true, label: 'Average time' }),
     kinds: ['Fixed', 'Floating'].filter((k) => Array.isArray(src.kinds) && src.kinds.includes(k)),
     kyc: KYC_GRADES.includes(src.kyc) ? src.kyc : null,

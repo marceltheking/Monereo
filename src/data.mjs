@@ -16,6 +16,7 @@ export const settings = () => db().settings;
 
 // Exchanges from the admin's Exchanges list, shown at the top of the directory.
 // Recommended listings go first; the rest keep the order set in the admin (sort is stable).
+// Verified does not affect the order: the admin order decides.
 const recommendedFirst = (list) => list.slice().sort((a, b) => Number(Boolean(b.recommended)) - Number(Boolean(a.recommended)));
 
 export const providers = () => recommendedFirst(db().providers.filter((p) => p.enabled));
